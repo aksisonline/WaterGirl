@@ -3,7 +3,7 @@
 Watergirl is a React application designed to manage administrative tasks. This project uses React, React Router, Tailwind CSS, and Supabase for backend services.
 
 ## Project Structure
-
+```
 admin_watergirl/
     .env
     .gitignore
@@ -27,7 +27,7 @@ admin_watergirl/
         setupTests.js
         supabaseClient.js
     tailwind.config.js
-
+```
 ## Getting Started
 
 ### Prerequisites
