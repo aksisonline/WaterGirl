@@ -1,0 +1,176 @@
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
+import { useNavigate } from 'react-router-dom';
+
+const AdminPanel = () => {
+  const [users, setUsers] = useState([]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setEmail('');
+    setPassword('');
+    fetchUsers();
+    setDarkMode(true);
+    document.documentElement.classList.add('dark');
+  }, []);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.auth.admin.listUsers();
+    setLoading(false);
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setUsers(data.users || []);
+    }
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error: createError } = await supabase.auth.admin.createUser({
+        email: email.trim(),
+        password: password.trim(),
+      });
+
+      if (createError) {
+        throw new Error(createError.message);
+      }
+
+      setEmail('');
+      setPassword('');
+      fetchUsers();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    const user = users.find(u => u.id === userId);
+    const confirmed = window.confirm(`Are you sure you want to delete the user with email: ${user.email}?`);
+    if (!confirmed) return;
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(userId);
+      if (error) {
+        throw new Error(error.message);
+      }
+      fetchUsers();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      localStorage.removeItem('isAuthenticated');
+      navigate('/login');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div className={`min-h-screen p-4 md:p-28 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-0">Admin Panel</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded-lg"
+        >
+          Logout
+        </button>
+      </div>
+
+      <div className="bg-white shadow rounded-lg p-4 md:p-8 mb-6 dark:bg-gray-800 dark:text-white">
+        <h2 className="text-lg md:text-xl font-bold mb-4">Create New User</h2>
+        <form onSubmit={handleCreateUser} autoComplete="off">
+          <div className="mb-4">
+            <label className="block text-gray-700 dark:text-gray-300">Email:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 p-2 w-full border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              autoComplete="off"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 dark:text-gray-300">Password:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 p-2 w-full border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              autoComplete="new-password"
+              required
+            />
+          </div> <br />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg dark:bg-blue-600"
+            disabled={loading}
+          >
+            {loading ? 'Creating...' : 'Create User'}
+          </button>
+        </form>
+      </div>
+
+      <div className="bg-white shadow rounded-lg p-4 md:p-8 dark:bg-gray-800 dark:text-white">
+        <h2 className="text-lg md:text-xl font-bold mb-4">Current Users</h2>
+        {loading && <p>Loading users...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+        <div className="overflow-x-auto">
+          <table className="table-auto w-full">
+            <thead>
+              <tr>
+                <th className="px-4 py-2">Email</th>
+                <th className="px-4 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <tr key={user.id}>
+                    <td className="border px-4 py-2">{user.email}</td>
+                    <td className="border px-4 py-2">
+                      <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="2" className="text-center py-4">
+                    No users found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminPanel;
