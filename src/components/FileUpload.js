@@ -128,6 +128,7 @@ const FileUpload = () => {
           onChange={handleFileChange}
           className="mb-4 p-2 w-full bg-gray-800 text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:border-gray-700"
         />
+        <p className="text-sm text-gray-400 mb-4">Takes only .xlsx files</p>
         <div className="flex space-x-4">
           <button
             onClick={() => {
