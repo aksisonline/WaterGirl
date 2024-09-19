@@ -41,7 +41,7 @@ const FileUpload = () => {
       const filteredData = jsonData.map(row => ({
         name: row.name,
         email: row.email,
-        uid: row.uid 
+        uid: row.uid,
       }));
 
       // Update the state with the filtered data
@@ -121,7 +121,7 @@ const FileUpload = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-900 text-white dark:bg-gray-900 dark:text-white">
-      <div className="w-full max-w-md p-4">
+      <div className="w-full max-w-2xl p-4"> {/* Increased max-width */}
         <input
           type="file"
           accept=".xlsx"
@@ -129,6 +129,17 @@ const FileUpload = () => {
           className="mb-4 p-2 w-full bg-gray-800 text-white border border-gray-700 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-gray-800 dark:text-white dark:border-gray-700"
         />
         <div className="flex space-x-4">
+          <button
+            onClick={() => {
+              const worksheet = XLSX.utils.json_to_sheet([{ name: '', email: '', uid: '' }]);
+              const workbook = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+              XLSX.writeFile(workbook, 'template.xlsx');
+            }}
+            className="p-2 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded focus:outline-none focus:ring-2 focus:ring-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700"
+          >
+            Download Template
+          </button>
           <button
             onClick={handleFileUpload}
             className="p-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
@@ -150,7 +161,7 @@ const FileUpload = () => {
         </div>
       </div>
     
-      <div className="bg-gray-800 text-white p-4 rounded mt-4 w-full max-w-4xl shadow-lg h-[600px] overflow-hidden dark:bg-gray-800 dark:text-white">
+      <div className="bg-gray-800 text-white p-4 rounded mt-4 w-full max-w-6xl shadow-lg h-[600px] overflow-hidden dark:bg-gray-800 dark:text-white"> {/* Increased max-width */}
         <h2 className="text-lg font-semibold mb-2 border-b border-gray-700 pb-2 dark:border-gray-700">File Content Preview:</h2>
         <div className="overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-900">
           <table className="table-auto w-full">
