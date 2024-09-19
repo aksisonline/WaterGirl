@@ -112,6 +112,13 @@ const FileUpload = () => {
     fetchData();
   }, []);
 
+  const handleDownload = () => {
+    const worksheet = XLSX.utils.json_to_sheet(filteredData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    XLSX.writeFile(workbook, 'download.xlsx');
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-900 text-white dark:bg-gray-900 dark:text-white">
       <div className="w-full max-w-md p-4">
@@ -134,6 +141,12 @@ const FileUpload = () => {
           >
             Delete All Data
           </button>
+          <button
+            onClick={handleDownload}
+            className="p-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold rounded focus:outline-none focus:ring-2 focus:ring-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+          >
+            Download Data
+          </button>
         </div>
       </div>
     
@@ -141,7 +154,7 @@ const FileUpload = () => {
         <h2 className="text-lg font-semibold mb-2 border-b border-gray-700 pb-2 dark:border-gray-700">File Content Preview:</h2>
         <div className="overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-900">
           <table className="table-auto w-full">
-            <thead className="sticky top-0 bg-gray-800 dark:bg-gray-800">
+            <thead className="sticky top-0 bg-gray-800 dark:bg-gray-800 z-10">
               <tr>
                 <th className="px-4 py-2 border-b border-gray-700 dark:border-gray-700">Name</th>
                 <th className="px-4 py-2 border-b border-gray-700 dark:border-gray-700">Email</th>
