@@ -1,213 +1,174 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'
+import { supabase } from '../lib/supabaseClient'
+import Layout from './Layout'
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
+import { Alert, AlertDescription } from "./ui/alert"
+import { AlertCircle } from "lucide-react"
 
-const AdminPanel = () => {
-  const [users, setUsers] = useState([]);
-  const [name, setName] = useState(''); // Add this line
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-  const navigate = useNavigate();
+export default function AdminPanel() {
+  const [users, setUsers] = useState([])
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    setEmail('');
-    setPassword('');
-    fetchUsers();
-    setDarkMode(true);
-    document.documentElement.classList.add('dark');
-  }, []);
+    fetchUsers()
+  }, [])
 
   const fetchUsers = async () => {
-    setLoading(true);
+    setLoading(true)
     const { data, error } = await supabase
       .from('volunteer_login')
-      .select('id, email, name'); // Include 'name' in the select statement
-    setLoading(false);
+      .select('id, email, name')
+    setLoading(false)
 
     if (error) {
-      setError(error.message);
+      setError(error.message)
     } else {
-      setUsers(data || []);
+      setUsers(data || [])
     }
-  };
+  }
 
   const handleCreateUser = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
   
     try {
       const { error: insertError } = await supabase
         .from('volunteer_login')
         .insert([
-          { name: name.trim(), email: email.trim(), password: password.trim() } // Include 'name' in the insert statement
-        ]);
+          { name: name.trim(), email: email.trim(), password: password.trim() }
+        ])
   
       if (insertError) {
-        throw new Error(insertError.message);
+        throw new Error(insertError.message)
       }
   
-      setName(''); // Clear the name field
-      setEmail('');
-      setPassword('');
-      fetchUsers();
+      setName('')
+      setEmail('')
+      setPassword('')
+      fetchUsers()
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
   
   const handleDeleteUser = async (userId) => {
-    const user = users.find(u => u.id === userId);
-    const confirmed = window.confirm(`Are you sure you want to delete the user with email: ${user.email}?`);
-    if (!confirmed) return;
+    const user = users.find(u => u.id === userId)
+    const confirmed = window.confirm(`Are you sure you want to delete the user with email: ${user.email}?`)
+    if (!confirmed) return
 
-    setLoading(true);
+    setLoading(true)
     try {
       const { error } = await supabase
         .from('volunteer_login')
         .delete()
-        .eq('id', userId);
+        .eq('id', userId)
       if (error) {
-        throw new Error(error.message);
+        throw new Error(error.message)
       }
-      fetchUsers();
+      fetchUsers()
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      localStorage.removeItem('isAuthenticated');
-      navigate('/login');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+  }
 
   return (
-    <div className={`min-h-screen p-4 md:p-28 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-900'}`}>
-      <nav className="bg-gray-800 p-4 rounded-lg mb-6">
-        <ul className="flex justify-between items-center space-x-4">
-          <li>
-            <a href="/admin" className="text-white px-4 py-2 rounded-lg">Admin Panel</a>
-          </li>
-          <li>
-            <button
-              onClick={() => navigate('/upload')}
-              className="text-white px-4 py-2 rounded-lg"
-            >
-              File Upload
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg"
-            >
-              Logout
-            </button>
-          </li>
-        </ul>
-      </nav>
+    <Layout>
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Create New User</h2>
+          <form onSubmit={handleCreateUser} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Creating...' : 'Create User'}
+            </Button>
+          </form>
+        </div>
 
-      <div className="bg-white shadow rounded-lg p-4 md:p-8 mb-6 dark:bg-gray-800 dark:text-white">
-        <h2 className="text-lg md:text-xl font-bold mb-4">Create New User</h2>
-        <form onSubmit={handleCreateUser} autoComplete="off">
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-300">Name:</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 p-2 w-full border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              autoComplete="off"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-300">Email:</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 p-2 w-full border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              autoComplete="off"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-300">Password:</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 p-2 w-full border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              autoComplete="new-password"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg dark:bg-blue-600"
-            disabled={loading}
-          >
-            {loading ? 'Creating...' : 'Create User'}
-          </button>
-        </form>
-      </div>
-
-      <div className="bg-white shadow rounded-lg p-4 md:p-8 dark:bg-gray-800 dark:text-white">
-        <h2 className="text-lg md:text-xl font-bold mb-4">Current Users</h2>
-        {loading && <p>Loading users...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-        <div className="overflow-x-auto">
-          <table className="table-auto w-full">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Email</th>
-                <th className="px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Current Users</h2>
+          {loading && <p>Loading users...</p>}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {users.length > 0 ? (
                 users.map((user) => (
                   user.email === 'chandu.tendul@gmail.com' ? null : (
-                    <tr key={user.id}>
-                      <td className="border px-4 py-2">{user.name}</td>
-                      <td className="border px-4 py-2">{user.email}</td>
-                      <td className="border px-4 py-2">
-                        <button
+                    <TableRow key={user.id}>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="destructive"
                           onClick={() => handleDeleteUser(user.id)}
-                          className="bg-red-500 text-white px-4 py-2 rounded-lg"
                         >
                           Delete
-                        </button>
-                      </td>
-                    </tr>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
                   )
                 ))
               ) : (
-                <tr>
-                  <td colSpan="3" className="text-center py-4">
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center">
                     No users found
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
-    </div>
-  );
-};
-
-export default AdminPanel;
+    </Layout>
+  )
+}
