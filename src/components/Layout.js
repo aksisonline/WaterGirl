@@ -67,14 +67,14 @@ export default function Layout({ children }) {
           </Button>
         </CardContent>
       </Card>
-      <main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-6 overflow-hidden"> {/* Ensures child scrolls */}
         <div className="md:hidden p-4">
           <Button variant="ghost" onClick={toggleMenu}>
             <Menu className="h-6 w-6" />
           </Button>
         </div>
         <Card className="h-full">
-          <CardContent className="p-6">
+          <CardContent className="p-6 h-full overflow-auto"> {/* Add scrolling here */}
             {children}
           </CardContent>
         </Card>
