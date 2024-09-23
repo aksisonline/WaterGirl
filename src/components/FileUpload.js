@@ -7,7 +7,7 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Alert, AlertDescription } from "./ui/alert"
-import { AlertCircle, Download, Upload, Trash2 } from "lucide-react"
+import { AlertCircle, Download, Upload, Trash2} from "lucide-react"
 
 export default function FileUpload() {
   const [file, setFile] = useState(null)
@@ -23,7 +23,19 @@ export default function FileUpload() {
     try {
       const { data: attendeeData, error: attendeeError } = await supabase
         .from('attendee_details')
-        .select('name, email, uid, entry_time')
+        .select(`
+          Team_Name: "Team Name",
+          Team_ID: "Team ID",
+          Institute_Name: "Institute Name",
+          Participants_Type: "Participants Type",
+          Team_Leader_Member: "Team Leader/Member",
+          name,
+          email,
+          phone,
+          gender,
+          uid,
+          entry_time
+        `)
   
       if (attendeeError) {
         setError(attendeeError.message)
@@ -71,11 +83,17 @@ export default function FileUpload() {
         const sheetName = workbook.SheetNames[0]
         const worksheet = workbook.Sheets[sheetName]
         const jsonData = XLSX.utils.sheet_to_json(worksheet)
-
+        console.log('jsonData', jsonData);
         const filteredData = jsonData.map(row => ({
-          name: row.name,
+          'Team Name': row['Team Name'],
+          'Team ID': row['Team ID'],
+          'Institute Name': row['Institute Name'],
+          'Participants Type': row['Participants Type'],
+          'Team Leader/Member': row['Team Leader/Member'],
+          name: row.Name,
           email: row.email,
-          uid: row.uid,
+          phone: row.phone,
+          gender: row.gender,
         }))
 
         setFilteredData(filteredData)
@@ -175,8 +193,15 @@ export default function FileUpload() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Team Name</TableHead>
+                  <TableHead>Team ID</TableHead>
+                  <TableHead>Institute Name</TableHead>
+                  <TableHead>Participants Type</TableHead>
+                  <TableHead>Team Leader/Member</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Gender</TableHead>
                   <TableHead>UID</TableHead>
                   <TableHead>Entry Time</TableHead>
                 </TableRow>
@@ -184,8 +209,15 @@ export default function FileUpload() {
               <TableBody>
                 {filteredData.map((row, index) => (
                   <TableRow key={index}>
+                    <TableCell>{row['Team_Name']}</TableCell>
+                    <TableCell>{row['Team_ID']}</TableCell>
+                    <TableCell>{row['Institute_Name']}</TableCell>
+                    <TableCell>{row['Participants_Type']}</TableCell>
+                    <TableCell>{row['Team_Leader_Member']}</TableCell>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.email}</TableCell>
+                    <TableCell>{row.phone}</TableCell>
+                    <TableCell>{row.gender}</TableCell>
                     <TableCell>{row.uid}</TableCell>
                     <TableCell>{row.entry_time}</TableCell>
                   </TableRow>
