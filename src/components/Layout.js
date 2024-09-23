@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Button } from "./ui/button"
 import { Card, CardContent } from "./ui/card"
 import { ScrollArea } from "./ui/scroll-area"
-import { FileText, Users, Upload, LogOut, Menu } from "lucide-react"
+import { Users, Upload, LogOut, Menu } from "lucide-react"
 import { supabase } from '../lib/supabaseClient'
 
 export default function Layout({ children }) {
