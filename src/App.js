@@ -1,63 +1,45 @@
-// import FileUpload from './components/FileUpload';
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <FileUpload />
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from './components/LoginPage';
-import AdminPanel from './components/Adminpanel';
-import FileUpload from './components/FileUpload';
+import React, { useState, useEffect } from 'react'
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
+import LoginPage from './components/LoginPage'
+import AdminPanel from './components/AdminPanel'
+import FileUpload from './components/FileUpload'
+import Statistics from './components/Statistics'
+import { ThemeProvider } from 'next-themes'
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
-    // Check authentication status from local storage
-    const authStatus = localStorage.getItem('isAuthenticated') === 'true';
-    setIsAuthenticated(authStatus);
-    setLoading(false);
-  }, []);
+    const authStatus = localStorage.getItem('isAuthenticated')
+    setIsAuthenticated(authStatus === 'true')
+  }, [])
 
-  if (loading) {
-    return <div>Loading...</div>;
+  const handleLogin = () => {
+    setIsAuthenticated(true)
   }
 
-  const PrivateRoute = ({ element }) => {
-    return isAuthenticated ? element : <Navigate to="/login" />;
-  };
-
   return (
-    <Router>
-      <Routes>
-        <Route 
-          path="/login" 
-          element={<LoginPage onLogin={() => setIsAuthenticated(true)} />} 
-        />
-        <Route 
-          path="/admin" 
-          element={<PrivateRoute element={<AdminPanel />} />} 
-        />
-        <Route 
-          path="/" 
-          element={<Navigate to="/login" />} 
-        />
-        <Route 
-          path="/upload" 
-          element={<PrivateRoute element={<FileUpload />} />} 
-        />
-      </Routes>
-    </Router>
-  );
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+          <Route
+            path="/admin"
+            element={isAuthenticated ? <AdminPanel /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/upload"
+            element={isAuthenticated ? <FileUpload /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/statistics"
+            element={isAuthenticated ? <Statistics /> : <Navigate to="/login" />}
+          />
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
+  )
 }
 
-export default App;
+export default App
