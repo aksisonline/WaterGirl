@@ -45,7 +45,7 @@ export default function Statistics() {
         ...item,
         participantType: item['Participants Type']?.toLowerCase() === 'student' ? 'Student' : 'Professional',
         teamRole: ['team leader', 'team member'].includes(item['Team Leader/Member']?.toLowerCase()) ? item['Team Leader/Member'] : 'Mentor',
-        isPresent: !!item['Entry Time']
+        isPresent: !!item.entry_time
       }))
       
       setData(processedData)
@@ -278,7 +278,7 @@ export default function Statistics() {
                     <TableCell>{item.teamRole}</TableCell>
                     <TableCell>{item['gender']}</TableCell>
                     <TableCell>{item.isPresent ? 'Present' : 'Absent'}</TableCell>
-                    <TableCell>{item['Entry Time'] ? new Date(item['Entry Time']).toLocaleString() : 'N/A'}</TableCell>
+                    <TableCell>{item.entry_time ? new Date(item.entry_time).toLocaleString() : 'N/A'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
