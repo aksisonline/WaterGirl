@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import LoginPage from './components/LoginPage'
 import AdminPanel from './components/AdminPanel'
 import FileUpload from './components/FileUpload'
+import Statistics from './components/Statistics'
 import { ThemeProvider } from 'next-themes'
 
 function App() {
@@ -29,6 +30,10 @@ function App() {
           <Route
             path="/upload"
             element={isAuthenticated ? <FileUpload /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/statistics"
+            element={isAuthenticated ? <Statistics /> : <Navigate to="/login" />}
           />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
