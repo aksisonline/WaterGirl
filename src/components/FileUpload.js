@@ -107,14 +107,21 @@ export default function FileUpload() {
       setError(err.message)
     }
   }
-
-  const handleDeleteAll = async () => {
-    const confirmed = window.confirm('Are you sure you want to delete all data?')
+  const handleClearEntryTime = async () => {
+    const confirmed = window.confirm('Are you sure you want to clear the entry time for all records?')
     if (!confirmed) return
 
     try {
-      await supabase.from('attendee_details').delete().neq('id', 0)
-      fetchData()
+      const { data, error } = await supabase
+        .from('attendee_details')
+        .update({ entry_time: null })
+        .neq('id', 0)
+
+      if (error) {
+        setError(error.message)
+      } else {
+        fetchData()
+      }
     } catch (err) {
       setError(err.message)
     }
@@ -164,9 +171,9 @@ export default function FileUpload() {
               <Upload className="mr-2 h-4 w-4" />
               Upload File
             </Button>
-            <Button variant="destructive" onClick={handleDeleteAll}>
+            <Button variant="destructive" onClick={handleClearEntryTime}>
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete All Data
+              Clear Entry Time
             </Button>
             <Button onClick={handleDownload}>
               <Download className="mr-2 h-4 w-4" />
